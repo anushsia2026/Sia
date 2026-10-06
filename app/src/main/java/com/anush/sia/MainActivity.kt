@@ -62,10 +62,12 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         chatText.textSize = 18f
         chatText.setTextColor(Color.parseColor("#EEEEEE"))
         scroll.addView(chatText)
-        val scrollParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f
+        root.addView(
+            scroll,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f
+            )
         )
-        root.addView(scroll, scrollParams)
 
         micButton = Button(this)
         micButton.text = "Bolo"
@@ -98,7 +100,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             ttsReady = result != TextToSpeech.LANG_MISSING_DATA &&
                     result != TextToSpeech.LANG_NOT_SUPPORTED
             if (!ttsReady) {
-                addChat("Sia", "Hindi awaaz is phone me nahi mili. Settings me Hindi TTS download karna hoga.")
+                addChat("Sia", "Hindi awaaz is phone me nahi mili.")
             }
         } else {
             addChat("Sia", "Awaaz engine shuru nahi hua.")
@@ -119,6 +121,27 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun setStatus(s: String) {
         statusText.text = s
+    }
+
+    private fun handleCommand(heard: String) {
+        val appName = AppLauncher.extractAppName(heard)
+        if (appName == null) {
+            speak("Maine suna: $heard. Abhi mujhe sirf app kholna aata hai.")
+            return
+        }
+        setStatus("Kar rahi hoon...")
+        val result = AppLauncher.open(this, appName)
+        setStatus("Taiyaar")
+        when {
+            result.startsWith("OK:") -> {
+                val label = result.removePrefix("OK:")
+                speak("Ji, $label khol rahi hoon.")
+            }
+            result == "NOT_INSTALLED" ->
+                speak("Yeh app aapke phone mein installed nahi hai.")
+            else ->
+                speak("App kholne mein dikkat aayi.")
+        }
     }
 
     private fun startListening() {
@@ -153,8 +176,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     speak("Mujhe samajh nahi aaya, dobara bolo.")
                 } else {
                     addChat("Aap", heard)
-                    setStatus("Taiyaar")
-                    speak("Maine suna: $heard")
+                    handleCommand(heard)
                 }
             }
             override fun onPartialResults(partialResults: Bundle?) {}
