@@ -7,15 +7,15 @@ import android.content.pm.PackageManager
 object AppLauncher {
 
     private val aliases = mapOf(
-        "instagram" to listOf("instagram", "insta", "इंस्टाग्राम", "इंस्टा", "instaa"),
-        "chrome" to listOf("chrome", "क्रोम", "browser", "ब्राउज़र"),
-        "youtube" to listOf("youtube", "यूट्यूब", "यू ट्यूब", "you tube"),
-        "whatsapp" to listOf("whatsapp", "व्हाट्सएप", "व्हाट्सऐप", "वाट्सएप", "whats app"),
-        "flipkart" to listOf("flipkart", "फ्लिपकार्ट"),
-        "snapchat" to listOf("snapchat", "स्नैपचैट"),
-        "camera" to listOf("camera", "कैमरा"),
-        "settings" to listOf("settings", "सेटिंग", "सेटिंग्स"),
-        "gallery" to listOf("gallery", "गैलरी", "photos", "फोटो"),
+        "instagram" to listOf("instagram", "insta", "इंस्टाग्राम", "इंस्टा", "इंस्टाग्रम", "instaa"),
+        "chrome" to listOf("chrome", "क्रोम", "क्रोम", "browser", "ब्राउज़र", "ब्राउजर"),
+        "youtube" to listOf("youtube", "यूट्यूब", "युटुब", "यूटयूब", "यूटूब", "युट्यूब", "यू ट्यूब", "यु ट्यूब", "you tube", "utube", "यूट्यूब"),
+        "whatsapp" to listOf("whatsapp", "व्हाट्सएप", "व्हाट्सऐप", "वाट्सएप", "वॉट्सऐप", "वॉट्सएप", "व्हाट्सअप", "whats app"),
+        "flipkart" to listOf("flipkart", "फ्लिपकार्ट", "फ्लिपकार्ड"),
+        "snapchat" to listOf("snapchat", "स्नैपचैट", "स्नेपचैट"),
+        "camera" to listOf("camera", "कैमरा", "कैमरे"),
+        "settings" to listOf("settings", "सेटिंग", "सेटिंग्स", "सेटिंग्ज"),
+        "gallery" to listOf("gallery", "गैलरी", "photos", "फोटो", "फोटोज"),
         "phone" to listOf("phone", "फोन", "dialer")
     )
 
@@ -35,6 +35,7 @@ object AppLauncher {
             .replace("bhai", " ").replace("भाई", " ")
             .replace("app", " ").replace("ऐप", " ")
             .replace("को", " ").replace("ko", " ")
+            .replace("करो", " ").replace("karo", " ")
             .trim().replace(Regex("\\s+"), " ")
         return if (name.isBlank()) null else name
     }
