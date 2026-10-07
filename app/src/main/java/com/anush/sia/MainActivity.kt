@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.util.Locale
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
@@ -125,22 +126,38 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun handleCommand(heard: String) {
         val appName = AppLauncher.extractAppName(heard)
-        if (appName == null) {
-            speak("Maine suna: $heard. Abhi mujhe sirf app kholna aata hai.")
+        if (appName != null) {
+            setStatus("Kar rahi hoon...")
+            val result = AppLauncher.open(this, appName)
+            setStatus("Taiyaar")
+            when {
+                result.startsWith("OK:") -> {
+                    val label = result.removePrefix("OK:")
+                    speak("Ji, $label khol rahi hoon.")
+                }
+                result == "NOT_INSTALLED" ->
+                    speak("Yeh app aapke phone mein installed nahi hai.")
+                else ->
+                    speak("App kholne mein dikkat aayi.")
+            }
             return
         }
-        setStatus("Kar rahi hoon...")
-        val result = AppLauncher.open(this, appName)
-        setStatus("Taiyaar")
-        when {
-            result.startsWith("OK:") -> {
-                val label = result.removePrefix("OK:")
-                speak("Ji, $label khol rahi hoon.")
+
+        setStatus("Soch rahi hoon...")
+        thread {
+            val answer = GeminiClient.ask(heard)
+            runOnUiThread {
+                setStatus("Taiyaar")
+                when {
+                    answer == "ERR:NO_KEY" ->
+                        speak("AI ki key app me nahi mili.")
+                    answer == "ERR:NET" ->
+                        speak("Internet connection nahi hai ya AI se connection nahi ho paya.")
+                    answer.startsWith("ERR:") ->
+                        speak("AI service se connection nahi ho paya. Code ${answer.removePrefix("ERR:")}")
+                    else -> speak(answer)
+                }
             }
-            result == "NOT_INSTALLED" ->
-                speak("Yeh app aapke phone mein installed nahi hai.")
-            else ->
-                speak("App kholne mein dikkat aayi.")
         }
     }
 
