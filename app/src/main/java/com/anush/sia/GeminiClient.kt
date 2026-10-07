@@ -16,6 +16,21 @@ object GeminiClient {
         "Agar jawab pata nahi to saaf bolo ki pata nahi."
 
     fun ask(question: String): String {
+        var last = "ERR:NET"
+        for (attempt in 1..3) {
+            last = askOnce(question)
+            val retryable = last == "ERR:503" || last == "ERR:429" || last == "ERR:500"
+            if (!retryable) return last
+            try {
+                Thread.sleep(1500L * attempt)
+            } catch (e: InterruptedException) {
+                return last
+            }
+        }
+        return last
+    }
+
+    private fun askOnce(question: String): String {
         val key = BuildConfig.GEMINI_API_KEY
         if (key.isBlank()) return "ERR:NO_KEY"
         return try {
