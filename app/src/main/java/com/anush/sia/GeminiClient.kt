@@ -7,7 +7,7 @@ import java.net.URL
 
 object GeminiClient {
 
-    private const val MODEL = "gemini-2.5-flash"
+    private const val MODEL = "gemini-flash-latest"
 
     private const val SYSTEM_PROMPT =
         "Tum Sia ho, ek dost jaisi female voice assistant. " +
@@ -54,13 +54,15 @@ object GeminiClient {
             if (code !in 200..299) return "ERR:$code"
 
             val json = JSONObject(text)
-            val answer = json.getJSONArray("candidates")
+            val parts = json.getJSONArray("candidates")
                 .getJSONObject(0)
                 .getJSONObject("content")
                 .getJSONArray("parts")
-                .getJSONObject(0)
-                .getString("text")
-            answer.trim()
+            val sb = StringBuilder()
+            for (i in 0 until parts.length()) {
+                sb.append(parts.getJSONObject(i).optString("text", ""))
+            }
+            sb.toString().trim()
         } catch (e: Exception) {
             "ERR:NET"
         }
