@@ -8,8 +8,8 @@ object AppLauncher {
 
     private val aliases = mapOf(
         "instagram" to listOf("instagram", "insta", "इंस्टाग्राम", "इंस्टा", "इंस्टाग्रम", "instaa"),
-        "chrome" to listOf("chrome", "क्रोम", "क्रोम", "browser", "ब्राउज़र", "ब्राउजर"),
-        "youtube" to listOf("youtube", "यूट्यूब", "युटुब", "यूटयूब", "यूटूब", "युट्यूब", "यू ट्यूब", "यु ट्यूब", "you tube", "utube", "यूट्यूब"),
+        "chrome" to listOf("chrome", "क्रोम", "browser", "ब्राउज़र", "ब्राउजर"),
+        "youtube" to listOf("youtube", "यूट्यूब", "युटुब", "यूटयूब", "यूटूब", "युट्यूब", "यू ट्यूब", "यु ट्यूब", "you tube", "utube"),
         "whatsapp" to listOf("whatsapp", "व्हाट्सएप", "व्हाट्सऐप", "वाट्सएप", "वॉट्सऐप", "वॉट्सएप", "व्हाट्सअप", "whats app"),
         "flipkart" to listOf("flipkart", "फ्लिपकार्ट", "फ्लिपकार्ड"),
         "snapchat" to listOf("snapchat", "स्नैपचैट", "स्नेपचैट"),
@@ -54,18 +54,38 @@ object AppLauncher {
 
         var bestPackage: String? = null
         var bestLabel = ""
-        for (info in apps) {
-            val label = info.loadLabel(pm).toString().lowercase()
-            val pkg = info.activityInfo.packageName
-            val matched = if (key != null) {
-                label.contains(key) || pkg.contains(key)
-            } else {
-                label.contains(wanted) || wanted.contains(label)
+
+        // Pehle: naam bilkul same wali app
+        if (key != null) {
+            for (info in apps) {
+                val label = info.loadLabel(pm).toString().lowercase().trim()
+                if (label == key) {
+                    bestPackage = info.activityInfo.packageName
+                    bestLabel = info.loadLabel(pm).toString()
+                    break
+                }
             }
-            if (matched) {
-                bestPackage = pkg
-                bestLabel = info.loadLabel(pm).toString()
-                break
+        }
+
+        // Phir: naam me shabd milne wali app (music/studio jaisi apps ko chhodkar)
+        if (bestPackage == null) {
+            for (info in apps) {
+                val label = info.loadLabel(pm).toString().lowercase()
+                val pkg = info.activityInfo.packageName
+                if (key != null && key == "youtube" &&
+                    (label.contains("music") || label.contains("studio") ||
+                            label.contains("kids") || pkg.contains("music"))
+                ) continue
+                val matched = if (key != null) {
+                    label.contains(key) || pkg.contains(key)
+                } else {
+                    label.contains(wanted) || wanted.contains(label)
+                }
+                if (matched) {
+                    bestPackage = pkg
+                    bestLabel = info.loadLabel(pm).toString()
+                    break
+                }
             }
         }
 
