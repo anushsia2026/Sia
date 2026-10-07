@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var tts: TextToSpeech? = null
     private var recognizer: SpeechRecognizer? = null
     private var ttsReady = false
+    private var sessionDone = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -175,7 +176,12 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             speak("Is phone me speech recognition available nahi hai.")
             return
         }
+
+        // Sia ki apni awaaz band karo, taaki wo khud ko na sune
+        tts?.stop()
+
         recognizer?.destroy()
+        sessionDone = false
         recognizer = SpeechRecognizer.createSpeechRecognizer(this)
         recognizer?.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) { setStatus("Sun rahi hoon...") }
@@ -184,10 +190,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             override fun onBufferReceived(buffer: ByteArray?) {}
             override fun onEndOfSpeech() { setStatus("Soch rahi hoon...") }
             override fun onError(error: Int) {
+                // Jawab mil chuka ho to baad ka nakli error ignore karo
+                if (sessionDone) return
+                sessionDone = true
                 setStatus("Taiyaar")
                 speak("Mujhe samajh nahi aaya, dobara bolo.")
             }
             override fun onResults(results: Bundle?) {
+                if (sessionDone) return
+                sessionDone = true
                 val list = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 val heard = list?.firstOrNull()
                 if (heard.isNullOrBlank()) {
