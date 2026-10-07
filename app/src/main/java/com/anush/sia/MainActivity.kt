@@ -153,6 +153,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                         speak("AI ki key app me nahi mili.")
                     answer == "ERR:NET" ->
                         speak("Internet connection nahi hai ya AI se connection nahi ho paya.")
+                    answer == "ERR:503" || answer == "ERR:429" ->
+                        speak("AI abhi busy hai, thodi der baad poochho.")
                     answer.startsWith("ERR:") ->
                         speak("AI service se connection nahi ho paya. Code ${answer.removePrefix("ERR:")}")
                     else -> speak(answer)
@@ -205,6 +207,12 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
         )
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "hi-IN")
+        intent.putExtra(
+            RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 2500L
+        )
+        intent.putExtra(
+            RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 2000L
+        )
         recognizer?.startListening(intent)
     }
 
